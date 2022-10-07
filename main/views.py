@@ -1,7 +1,8 @@
-import re
+from unicodedata import name
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User, Group
 from .forms import PostForm, RegistrationForm
 from .models import Post
 
@@ -15,11 +16,24 @@ def home(request):
     if request.method == "POST":
         # get the value from the named button
         post_id = request.POST.get("delete-post-id")
-        post = Post.objects.get(id=post_id)
+        user_id = request.POST.get("user-id")
 
-        # check if post exist and if author is the user
-        if post and (post.author == request.user or request.user.has_perm("main.delete_post")):
-            post.delete()
+        if post_id:
+            post = Post.objects.get(id=post_id)
+
+            # check if post exist and if author is the user
+            if post and (post.author == request.user or request.user.has_perm("main.delete_post")):
+                post.delete()
+        
+        elif user_id:
+            user = User.objects.get(id=user_id)
+            if user and request.user.is_staff:
+                # try, in case user is already banned, pass
+                try:
+                    group = Group.objects.get(name="default")
+                    group.user_set.remove(user)
+                except:
+                    pass
 
     return render(request, 'main/home.html', {"posts": posts})
 
