@@ -10,7 +10,7 @@
                 <h5>{{ post.title }}</h5>
             </div>
             <div>
-                {% if user == post.author %}
+                {% if user == post.author and perms.main.delete_post or user.is_superuser %}
                     <form method="POST">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger" name="delete-post-id" value={{post.id}}>Delete</button>

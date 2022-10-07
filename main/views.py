@@ -1,6 +1,7 @@
+import re
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from .forms import PostForm, RegistrationForm
 from .models import Post
 
@@ -17,7 +18,7 @@ def home(request):
         post = Post.objects.get(id=post_id)
 
         # check if post exist and if author is the user
-        if post and post.author == request.user:
+        if post and (post.author == request.user or request.user.has_perm("main.delete_post")):
             post.delete()
 
     return render(request, 'main/home.html', {"posts": posts})
@@ -35,6 +36,7 @@ def sign_up(request):
     return render(request, "registration/sign_up.html", {"form": form})
 
 @login_required(login_url="/login")
+@permission_required("main.add_post", login_url="/login", raise_exception=True)
 def create_post(request):
     if request.method == "POST":
         form = PostForm(request.POST)
