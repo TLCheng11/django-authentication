@@ -10,6 +10,16 @@ from .models import Post
 @login_required(login_url="/login")
 def home(request):
     posts = Post.objects.all()
+
+    if request.method == "POST":
+        # get the value from the named button
+        post_id = request.POST.get("delete-post-id")
+        post = Post.objects.get(id=post_id)
+
+        # check if post exist and if author is the user
+        if post and post.author == request.user:
+            post.delete()
+
     return render(request, 'main/home.html', {"posts": posts})
 
 def sign_up(request):
