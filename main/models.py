@@ -13,4 +13,4 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        self.title + "\n" + self.description
+        return self.title + "\n" + self.description

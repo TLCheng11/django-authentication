@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
-from .forms import RegistrationForm
+from .forms import PostForm, RegistrationForm
 
 
 # Create your views here.
@@ -21,3 +21,19 @@ def sign_up(request):
         form = RegistrationForm()
 
     return render(request, "registration/sign_up.html", {"form": form})
+
+@login_required(login_url="/login")
+def create_post(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            # commit=False means don't add to database yet
+            post = form.save(commit=False)
+            # link the user to the post, then save
+            post.author = request.user
+            post.save()
+            return redirect("/home")
+    else:
+        form = PostForm()
+
+    return render(request, "main/create_post.html", {"form": form})
