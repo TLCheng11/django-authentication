@@ -1,4 +1,4 @@
-FROM python:3.10.7-slim
+FROM python:3.10.7-slim-buster
 
 RUN python -m venv /opt/venv
 # Make sure we use the virtualenv:
